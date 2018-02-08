@@ -1,5 +1,5 @@
 /*
-react-datetime v2.11.0
+react-datetime v2.12.0
 https://github.com/YouCanBookMe/react-datetime
 MIT: https://github.com/YouCanBookMe/react-datetime/raw/master/LICENSE
 */
@@ -78,6 +78,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			onBlur: TYPES.func,
 			onChange: TYPES.func,
 			onViewModeChange: TYPES.func,
+			onSubtractTime: TYPES.func,
+			onAddTime: TYPES.func,
 			locale: TYPES.string,
 			utc: TYPES.bool,
 			input: TYPES.bool,
@@ -91,27 +93,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			strictParsing: TYPES.bool,
 			closeOnSelect: TYPES.bool,
 			closeOnTab: TYPES.bool
-		},
-
-		getDefaultProps: function() {
-			var nof = function() {};
-			return {
-				className: '',
-				defaultValue: '',
-				inputProps: {},
-				input: true,
-				onFocus: nof,
-				onBlur: nof,
-				onChange: nof,
-				onViewModeChange: nof,
-				timeFormat: true,
-				timeConstraints: {},
-				dateFormat: true,
-				strictParsing: true,
-				closeOnSelect: false,
-				closeOnTab: true,
-				utc: false
-			};
 		},
 
 		getInitialState: function() {
@@ -213,7 +194,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			if ( updatedState.open === undefined ) {
-				if ( this.props.closeOnSelect && this.state.currentView !== 'time' ) {
+				if ( typeof nextProps.open !== 'undefined' ) {
+					updatedState.open = nextProps.open;
+				} else if ( this.props.closeOnSelect && this.state.currentView !== 'time' ) {
 					updatedState.open = false;
 				} else {
 					updatedState.open = this.state.open;
@@ -311,26 +294,29 @@ return /******/ (function(modules) { // webpackBootstrap
 			};
 		},
 
-		addTime: function( amount, type, toSelected ) {
-			return this.updateTime( 'add', amount, type, toSelected );
+		subtractTime: function( amount, type, toSelected ) {
+			var me = this;
+			return function() {
+				me.props.onSubtractTime( amount, type );
+				me.updateTime( 'subtract', amount, type, toSelected );
+			};
 		},
 
-		subtractTime: function( amount, type, toSelected ) {
-			return this.updateTime( 'subtract', amount, type, toSelected );
+		addTime: function( amount, type, toSelected ) {
+			var me = this;
+			return function() {
+				me.props.onAddTime( amount, type );
+				me.updateTime( 'add', amount, type, toSelected );
+			};
 		},
 
 		updateTime: function( op, amount, type, toSelected ) {
-			var me = this;
+			var update = {},
+				date = toSelected ? 'selectedDate' : 'viewDate';
 
-			return function() {
-				var update = {},
-					date = toSelected ? 'selectedDate' : 'viewDate'
-				;
+			update[ date ] = this.state[ date ].clone()[ op ]( amount, type );
 
-				update[ date ] = me.state[ date ].clone()[ op ]( amount, type );
-
-				me.setState( update );
-			};
+			this.setState( update );
 		},
 
 		allowedSetTime: ['hours', 'minutes', 'seconds', 'milliseconds'],
@@ -487,7 +473,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					value: this.state.inputValue,
 				}, this.props.inputProps);
 				if ( this.props.renderInput ) {
-					children = [ React.createElement('div', { key: 'i' }, this.props.renderInput( finalInputProps, this.openCalendar )) ];
+					children = [ React.createElement('div', { key: 'i' }, this.props.renderInput( finalInputProps, this.openCalendar, this.closeCalendar )) ];
 				} else {
 					children = [ React.createElement('input', assign({ key: 'i' }, finalInputProps ))];
 				}
@@ -506,6 +492,26 @@ return /******/ (function(modules) { // webpackBootstrap
 			));
 		}
 	});
+
+	Datetime.defaultProps = {
+		className: '',
+		defaultValue: '',
+		inputProps: {},
+		input: true,
+		onFocus: function() {},
+		onBlur: function() {},
+		onChange: function() {},
+		onViewModeChange: function() {},
+		onSubtractTime: function() {},
+		onAddTime: function() {},
+		timeFormat: true,
+		timeConstraints: {},
+		dateFormat: true,
+		strictParsing: true,
+		closeOnSelect: false,
+		closeOnTab: true,
+		utc: false
+	};
 
 	// Make moment accessible through the Datetime class
 	Datetime.moment = moment;
@@ -3492,9 +3498,9 @@ return /******/ (function(modules) { // webpackBootstrap
 					}
 				}
 				return React.createElement('div', { key: type, className: 'rdtCounter' }, [
-					React.createElement('span', { key: 'up', className: 'rdtBtn', onMouseDown: this.onStartClicking( 'increase', type ), onContextMenu: this.disableContextMenu }, '▲' ),
+					React.createElement('span', { key: 'up', className: 'rdtBtn', onTouchStart: this.onStartClicking('increase', type), onMouseDown: this.onStartClicking( 'increase', type ), onContextMenu: this.disableContextMenu }, '▲' ),
 					React.createElement('div', { key: 'c', className: 'rdtCount' }, value ),
-					React.createElement('span', { key: 'do', className: 'rdtBtn', onMouseDown: this.onStartClicking( 'decrease', type ), onContextMenu: this.disableContextMenu }, '▼' )
+					React.createElement('span', { key: 'do', className: 'rdtBtn', onTouchStart: this.onStartClicking('decrease', type), onMouseDown: this.onStartClicking( 'decrease', type ), onContextMenu: this.disableContextMenu }, '▼' )
 				]);
 			}
 			return '';
@@ -3502,9 +3508,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		renderDayPart: function() {
 			return React.createElement('div', { key: 'dayPart', className: 'rdtCounter' }, [
-				React.createElement('span', { key: 'up', className: 'rdtBtn', onMouseDown: this.onStartClicking( 'toggleDayPart', 'hours'), onContextMenu: this.disableContextMenu }, '▲' ),
+				React.createElement('span', { key: 'up', className: 'rdtBtn', onTouchStart: this.onStartClicking('toggleDayPart', 'hours'), onMouseDown: this.onStartClicking( 'toggleDayPart', 'hours'), onContextMenu: this.disableContextMenu }, '▲' ),
 				React.createElement('div', { key: this.state.daypart, className: 'rdtCount' }, this.state.daypart ),
-				React.createElement('span', { key: 'do', className: 'rdtBtn', onMouseDown: this.onStartClicking( 'toggleDayPart', 'hours'), onContextMenu: this.disableContextMenu }, '▼' )
+				React.createElement('span', { key: 'do', className: 'rdtBtn', onTouchStart: this.onStartClicking('toggleDayPart', 'hours'), onMouseDown: this.onStartClicking( 'toggleDayPart', 'hours'), onContextMenu: this.disableContextMenu }, '▼' )
 			]);
 		},
 
@@ -3614,9 +3620,11 @@ return /******/ (function(modules) { // webpackBootstrap
 					clearInterval( me.increaseTimer );
 					me.props.setTime( type, me.state[ type ] );
 					document.body.removeEventListener( 'mouseup', me.mouseUpListener );
+					document.body.removeEventListener( 'touchend', me.mouseUpListener );
 				};
 
 				document.body.addEventListener( 'mouseup', me.mouseUpListener );
+				document.body.addEventListener( 'touchend', me.mouseUpListener );
 			};
 		},
 
