@@ -78,8 +78,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			onBlur: TYPES.func,
 			onChange: TYPES.func,
 			onViewModeChange: TYPES.func,
-			onSubtractTime: TYPES.func,
-			onAddTime: TYPES.func,
+			onNavigateBack: TYPES.func,
+			onNavigateForward: TYPES.func,
 			locale: TYPES.string,
 			utc: TYPES.bool,
 			input: TYPES.bool,
@@ -297,7 +297,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		subtractTime: function( amount, type, toSelected ) {
 			var me = this;
 			return function() {
-				me.props.onSubtractTime( amount, type );
+				me.props.onNavigateBack( amount, type );
 				me.updateTime( 'subtract', amount, type, toSelected );
 			};
 		},
@@ -305,7 +305,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		addTime: function( amount, type, toSelected ) {
 			var me = this;
 			return function() {
-				me.props.onAddTime( amount, type );
+				me.props.onNavigateForward( amount, type );
 				me.updateTime( 'add', amount, type, toSelected );
 			};
 		},
@@ -502,8 +502,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		onBlur: function() {},
 		onChange: function() {},
 		onViewModeChange: function() {},
-		onSubtractTime: function() {},
-		onAddTime: function() {},
+		onNavigateBack: function() {},
+		onNavigateForward: function() {},
 		timeFormat: true,
 		timeConstraints: {},
 		dateFormat: true,
