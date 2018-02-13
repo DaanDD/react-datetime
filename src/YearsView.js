@@ -41,7 +41,7 @@ var DateTimePickerYears = onClickOutside( createClass({
 
 			// Not sure what 'rdtOld' is for, commenting out for now as it's not working properly
 			// if ( i === -1 | i === 10 )
-				// classes += ' rdtOld';
+			// classes += ' rdtOld';
 
 			noOfDaysInYear = currentYear.endOf( 'year' ).format( 'DDD' );
 			daysInYear = Array.from({ length: noOfDaysInYear }, function( e, i ) {

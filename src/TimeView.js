@@ -28,7 +28,7 @@ var DateTimePickerTime = onClickOutside( createClass({
 		}
 
 		var hours = date.format( 'H' );
-		
+
 		var daypart = false;
 		if ( this.state !== null && this.props.timeFormat.toLowerCase().indexOf( ' a' ) !== -1 ) {
 			if ( this.props.timeFormat.indexOf( ' A' ) !== -1 ) {
@@ -95,8 +95,8 @@ var DateTimePickerTime = onClickOutside( createClass({
 			counters.push(
 				React.createElement('div', { className: 'rdtCounter rdtMilli', key: 'm' },
 					React.createElement('input', { value: this.state.milliseconds, type: 'text', onChange: this.updateMilli } )
-					)
-				);
+				)
+			);
 		}
 
 		return React.createElement('div', { className: 'rdtTime' },
