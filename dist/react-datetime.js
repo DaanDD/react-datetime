@@ -273,8 +273,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		showView: function( view ) {
 			var me = this;
 			return function() {
+				var previousView = me.state.currentView;
 				me.setState({ currentView: view }, function() {
-					me.state.currentView !== view && me.props.onViewModeChange( view );
+					previousView !== view && me.props.onViewModeChange( view );
 				});
 			};
 		},
@@ -462,8 +463,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			// TODO: Make a function or clean up this code,
 			// logic right now is really hard to follow
 			var className = 'rdt' + (this.props.className ?
-	                  ( Array.isArray( this.props.className ) ?
-	                  ' ' + this.props.className.join( ' ' ) : ' ' + this.props.className) : ''),
+					(Array.isArray(this.props.className) ?
+						' ' + this.props.className.join(' ') : ' ' + this.props.className) : ''),
 				children = [];
 
 			if ( this.props.input ) {
@@ -3373,7 +3374,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				// Not sure what 'rdtOld' is for, commenting out for now as it's not working properly
 				// if ( i === -1 | i === 10 )
-					// classes += ' rdtOld';
+				// classes += ' rdtOld';
 
 				noOfDaysInYear = currentYear.endOf( 'year' ).format( 'DDD' );
 				daysInYear = Array.from({ length: noOfDaysInYear }, function( e, i ) {
@@ -3471,7 +3472,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			var hours = date.format( 'H' );
-			
+
 			var daypart = false;
 			if ( this.state !== null && this.props.timeFormat.toLowerCase().indexOf( ' a' ) !== -1 ) {
 				if ( this.props.timeFormat.indexOf( ' A' ) !== -1 ) {
@@ -3538,8 +3539,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				counters.push(
 					React.createElement('div', { className: 'rdtCounter rdtMilli', key: 'm' },
 						React.createElement('input', { value: this.state.milliseconds, type: 'text', onChange: this.updateMilli } )
-						)
-					);
+					)
+				);
 			}
 
 			return React.createElement('div', { className: 'rdtTime' },
